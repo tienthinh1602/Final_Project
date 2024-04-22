@@ -1,11 +1,3 @@
-#!/usr/bin/env python36
-# -*- coding: utf-8 -*-
-"""
-Created on July, 2018
-
-@author: Tangrizzly
-"""
-
 import argparse
 import pickle
 import time
@@ -13,7 +5,7 @@ from utils import build_graph, Data, split_validation
 from model import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--dataset', default='diginetica', help='dataset name: diginetica/yoochoose1_4/yoochoose1_64/sample')
+parser.add_argument('--dataset', help='dataset name: sample')
 parser.add_argument('--batchSize', type=int, default=50, help='input batch size')
 parser.add_argument('--hiddenSize', type=int, default=120, help='hidden state size')
 parser.add_argument('--epoch', type=int, default=30, help='the number of epochs to train for')
@@ -32,25 +24,17 @@ print(opt)
 
 
 def main():
-    train_data = pickle.load(open('../datasets/' + opt.dataset + '/train.txt', 'rb'))
+    train_data = pickle.load(open("/content/GC-SAN/datasets/train.txt", 'rb'))
     if opt.validation:
         train_data, valid_data = split_validation(train_data, opt.valid_portion)
         test_data = valid_data
     else:
-        test_data = pickle.load(open('../datasets/' + opt.dataset + '/test.txt', 'rb'))
+        test_data = pickle.load(open("/content/GC-SAN/datasets/test.txt", 'rb'))
     # all_train_seq = pickle.load(open('../datasets/' + opt.dataset + '/all_train_seq.txt', 'rb'))
     # g = build_graph(all_train_seq)
     train_data = Data(train_data, shuffle=True, opt=opt)
     test_data = Data(test_data, shuffle=False, opt=opt)
-    # del all_train_seq, g
-    if opt.dataset == 'diginetica':
-        n_node = 43098
-    elif opt.dataset == 'yoochoose1_64' or opt.dataset == 'yoochoose1_4':
-        n_node = 37484
-    elif opt.dataset == 'diginetica_users':
-        n_node = 57070
-    else:
-        n_node = 310
+    n_node = 310
 
     model = trans_to_cuda(SessionGraph(opt, n_node, max(train_data.len_max, test_data.len_max)))
 
