@@ -204,8 +204,7 @@ class SessionGraph(Module):
     def compute_scores(self, hidden, mask, self_att=True, residual=True, k_blocks=4):
         ht = hidden[torch.arange(mask.shape[0]).long(), torch.sum(mask, 1) - 1]  # batch_size x latent_size
         mask_self = mask.repeat(1, mask.shape[1]).view(-1, mask.shape[1], mask.shape[1])
-        if self_att:
-            # 加上 self attention
+        if self_att:            
             attn_output = hidden
             for k in range(k_blocks):
                 attn_output = attn_output.transpose(0,1)
@@ -258,13 +257,9 @@ def forward(model, i, data):
     items = trans_to_cuda(torch.Tensor(items).long())
     A = trans_to_cuda(torch.Tensor(A).float())
     mask = trans_to_cuda(torch.Tensor(mask).long())
-    # summary has an embedding bug - https://github.com/jiangxiluning/pytorch-summary
-    # summary(model, [(items.cpu().numpy().shape), (A.cpu().numpy().shape)])  # print model summary
     hidden = model(items, A)
     get = lambda i: hidden[i][alias_inputs[i]]
     seq_hidden = torch.stack([get(i) for i in torch.arange(len(alias_inputs)).long()])
-    # 加上 position encoding
-    # seq_hidden = model.pe(seq_hidden)
     return targets, model.compute_scores(seq_hidden, mask)
 
 

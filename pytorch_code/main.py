@@ -1,7 +1,7 @@
 import argparse
 import pickle
 import time
-from utils import build_graph, Data, split_validation
+from utils import Data, split_validation
 from model import *
 
 parser = argparse.ArgumentParser()
@@ -30,11 +30,10 @@ def main():
         test_data = valid_data
     else:
         test_data = pickle.load(open("/content/GC-SAN/datasets/test.txt", 'rb'))
-    # all_train_seq = pickle.load(open('../datasets/' + opt.dataset + '/all_train_seq.txt', 'rb'))
-    # g = build_graph(all_train_seq)
+
     train_data = Data(train_data, shuffle=True, opt=opt)
     test_data = Data(test_data, shuffle=False, opt=opt)
-    n_node = 310
+    n_node = 2412095
 
     model = trans_to_cuda(SessionGraph(opt, n_node, max(train_data.len_max, test_data.len_max)))
 
